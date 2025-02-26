@@ -1,16 +1,17 @@
 import React from "react";
 import Sidebar from "./components/Sidebar";
+import Dashboard from "./components/Dashboard";
+import "./styles/global.css";
+import "./styles/dashboard.css";
 import "./styles/sidebar.css";
 
-function App() {
+const App = () => {
   return (
     <div className="app">
-      <Sidebar />
-      <div className="main-content">
-        <h1>Dashboard</h1>
-      </div>
+      <Dashboard />
     </div>
   );
-}
+};
+
 
 export default App;
