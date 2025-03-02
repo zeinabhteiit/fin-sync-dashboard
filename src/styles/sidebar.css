@@ -1,31 +1,40 @@
+/* sidebar */
 .sidebar {
-    position:fixed;
-    width: 250px;
-    height: 100vh;
-    background-color: #f9b3f3;
-    padding: 20px;
-  }
+  position: fixed;
+  width: 250px;
+  height: 100vh;
+  background-color: #f9b3f3; /* Light pink background */
+  padding: 20px;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: black;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.menu li {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 16px;
   
-  .logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #6a008a;
-  }
-  
-  .menu {
-    list-style: none;
-    padding: 0;
-    margin-top: 20px;
-  }
-  
-  .menu li {
-    padding: 10px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .menu li:hover {
-    background-color: #ffdbff;
-    border-radius: 5px;
-  }
-  
+  transition: background-color 0.3s ease;
+  color: black !important; /* Force text color to black */
+}
+
+.menu li:hover {
+  background-color: #ffdbff; /* Light pink background on hover */
+  border-radius: 5px;
+  color: black !important; /* Ensure text color stays black on hover */
+}
+
+.menu li.active {
+  background-color: #ffb3d9; /* Slightly darker pink for active item */
+  color: black !important; /* Keep active text color black */
+}

@@ -39,9 +39,9 @@ const DashboardPage = () => {
     <div className="dashboard-container">
       <Sidebar />
       <div className="dashboard-content">
-        <h1>Dashboard</h1>
+        <h1>FinSync</h1>
         {user ? (
-           <p> welcome </p>
+           <p> Dashboard </p>
           // <p>Welcome, {user.email}</p> // Display the user email if session exists
         ) : (
           <p>No user found</p>

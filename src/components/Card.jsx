@@ -6,6 +6,7 @@ const Card = ({ title, value, icon }) => {
     <div className="card">
       <div className="card-header">
         <h3>{title}</h3>
+     
         <div className="card-icon">{icon}</div>
       </div>
       <div className="card-body">

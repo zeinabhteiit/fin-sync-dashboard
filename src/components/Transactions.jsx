@@ -10,7 +10,7 @@ const Transactions = () => {
 
   return (
     <div className="transactions">
-      <h3>Recent Transactions</h3>
+      <h3> Transactions</h3>
       <table>
         <thead>
           <tr>
