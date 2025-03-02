@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 import "../styles/sidebar.css"; // Make sure to create this file
 
 const Sidebar = () => {
@@ -8,13 +9,13 @@ const Sidebar = () => {
         <h2>FinSync</h2>
       </div>
       <ul className="menu">
-        <li> Login</li>
-        <li> Dashboard</li>
-        <li> Admin Panel</li>
-        <li> Categories</li>
-        <li> Transactions</li>
-        <li> Analytics</li>
-        <li> Logout</li>
+        <li><Link to="/login">Login</Link></li>  {/* Link to login page */}
+        <li><Link to="/dashboard">Dashboard</Link></li>  {/* Link to dashboard page */}
+        <li><Link to="/admin">Admin Panel</Link></li>  {/* Link to admin panel */}
+        <li><Link to="/categories">Categories</Link></li>  {/* Link to categories page */}
+        <li><Link to="/transactions">Transactions</Link></li>  {/* Link to transactions page */}
+        <li><Link to="/analytics">Analytics</Link></li>  {/* Link to analytics page */}
+        <li><Link to="/logout">Logout</Link></li>  {/* Link to logout page (You can add this functionality) */}
       </ul>
     </div>
   );
