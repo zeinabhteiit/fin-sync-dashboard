@@ -2,12 +2,10 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api/auth'; // Adjust based on your backend
 
-// Sign Up (Admin or Super Admin)
-export const signUp = async (email, password, isSuperAdmin = false) => {
-  const endpoint = isSuperAdmin ? '/create-super-admin' : '/signup-admin';
-  return await axios.post(`${API_URL}${endpoint}`, { email, password });
-};
-
+// Register admin function
+export const signUpAdmin = async (email, password) => {
+    return await axios.post(`${API_URL}/signup-admin`, { email, password});
+  };
 // Sign In
 export const signIn = async (email, password) => {
   return await axios.post(`${API_URL}/signin`, { email, password });

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { signIn, signOut } from '../context/Api';
+import { signIn, signOut, signUpAdmin } from '../context/Api';
 
 const AuthContext = createContext();
 
@@ -26,6 +26,19 @@ export const AuthProvider = ({ children }) => {
       throw new Error(error.response.data.error);
     }
   };
+    // Register admin function
+    const register = async (email, password) => {
+        try {
+          const response = await signUpAdmin(email, password);
+          localStorage.setItem('token', response.data.access_token);
+          localStorage.setItem('user', JSON.stringify(response.data.user));
+          setUser(response.data.user);
+          setToken(response.data.access_token);
+        } catch (error) {
+          console.error(error.response.data.error);
+          throw new Error(error.response.data.error);
+        }
+      };
 
   const logout = async () => {
     await signOut();
@@ -36,7 +49,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout,register}}>
       {children}
     </AuthContext.Provider>
   );
