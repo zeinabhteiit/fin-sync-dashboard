@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import supabase from "../supabase";  // Ensure this is your Supabase client
 import Sidebar from "../components/Sidebar";
 import Transactions from "../components/Transactions";
 import Analytics from "../components/Analytics";

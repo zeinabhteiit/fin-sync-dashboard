@@ -1,51 +1,28 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import supabase from "../supabase"; // Adjust the import to match your project structure
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
-const LoginPage = () => {
-  const [email, setEmail] = useState(""); // Store email
-  const [password, setPassword] = useState(""); // Store password
-  const [error, setError] = useState(null); // Store error messages
-  const navigate = useNavigate(); // Navigation hook
+const Login = () => {
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent page reload
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-  
-    
-
-    if (data) {
-      navigate("/dashboard"); // Redirect to dashboard if login is successful
-    } else {
-      setError("Invalid credentials");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await login(email, password);
+      window.location.href = '/dashboard'; // Redirect after login
+    } catch (error) {
+      alert(error.message);
     }
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {error && <p>{error}</p>}
-        <button type="submit">Login</button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
   );
 };
 
-export default LoginPage;
+export default Login;

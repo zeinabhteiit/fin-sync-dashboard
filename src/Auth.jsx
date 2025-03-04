@@ -1,5 +1,5 @@
 // src/utils/auth.js
-import supabase from '../src/supabase'; // Import your Supabase client
+import supabase from './supabase'; // Import your Supabase client
 
 // Function to get and refresh the auth token
 export const getAuthToken = async () => {
