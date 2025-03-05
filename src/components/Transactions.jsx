@@ -1,34 +1,63 @@
-import React from "react";
-import "../styles/transactions.css"; // Make sure the CSS file is linked
+import React, { useState, useEffect } from "react";
+import { fetchExpenses } from "../services/expensesService";
+import { fetchIncome } from "../services/incomeService";
+import { fetchRecurringExpenses } from "../services/recurringExpenseService";
+import { fetchRecurringIncome } from "../services/recurringIncomeService";
+import ExpenseList from "../components/Expenseslist";
+import IncomeList from "../components/IncomeList";
+import RecurringExpenseList from "../components/RecurringExpenseList";
+import RecurringIncomeList from "../components/RecurringIncomeList";
 
 const Transactions = () => {
-  const transactions = [
-    { id: 1, date: "2025-03-01", amount: "$100", description: "Payment from Client" },
-    { id: 2, date: "2025-02-25", amount: "$50", description: "Payment for Services" },
-    { id: 3, date: "2025-02-20", amount: "$200", description: "Payment from Vendor" },
-  ];
+  const [expenses, setExpenses] = useState([]);
+  const [income, setIncome] = useState([]);
+  const [recurringExpenses, setRecurringExpenses] = useState([]);
+  const [recurringIncome, setRecurringIncome] = useState([]);
+  const [loading, setLoading] = useState(true); // For showing loading state
 
-  return (
-    <div className="transactions">
-      <h3> Transactions</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((transaction) => (
-            <tr key={transaction.id}>
-              <td>{transaction.date}</td>
-              <td>{transaction.amount}</td>
-              <td>{transaction.description}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+  useEffect(() => {
+    // Fetch data from the services
+    const fetchData = async () => {
+      try {
+        const expensesData = await fetchExpenses();
+        const incomeData = await fetchIncome();
+        const recurringExpensesData = await fetchRecurringExpenses();
+        const recurringIncomeData = await fetchRecurringIncome();
+
+        // Set the state with the fetched data
+        setExpenses(expensesData);
+        setIncome(incomeData);
+        setRecurringExpenses(recurringExpensesData);
+        setRecurringIncome(recurringIncomeData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false); // Stop loading when data is fetched
+      }
+    };
+
+    fetchData();
+  }, []); // Empty dependency array to fetch data once when the component mounts
+
+  if (loading) {
+    return <div>Loading...</div>; // Show loading state while fetching data
+  }
+return (
+    <div>
+      <h1>Transactions</h1>
+
+      {/* Render the components and pass the fetched data as props */}
+      <h2>Fixed Expenses</h2>
+      <ExpenseList expenses={expenses} />
+
+      <h2>Fixed Income</h2>
+      <IncomeList income={income} />
+
+      <h2>Recurring Expenses</h2>
+      <RecurringExpenseList recurringExpenses={recurringExpenses} />
+
+      <h2>Recurring Income</h2>
+      <RecurringIncomeList recurringIncome={recurringIncome} />
     </div>
   );
 };

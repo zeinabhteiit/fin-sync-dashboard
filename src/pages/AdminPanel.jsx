@@ -1,29 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import "../styles/Admin.css"
+import "../styles/Admin.css";
 
 const API_URL = 'http://localhost:5000/api/auth'; // Adjust based on your backend
 
 const AdminPanel = () => {
   const { user, token } = useAuth();
-  const userId = user?.id;
-  const userRole = user?.role;
-
   const [admins, setAdmins] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  // Get userId & role safely
+  const userId = user?.id;
+  const userRole = user?.role ; // Normalize role
+
+  // Debugging logs
+  useEffect(() => {
+    console.log("User:", user);
+    console.log("Token:", token);
+    console.log("User Role:", userRole);
+  }, [user, token, userRole]);
+
+  // Fetch Admins if Super Admin
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
+        if (!token) {
+          setError('No token found. Please log in.');
+          return;
+        }
         if (userRole !== 'superAdmin') {
           setError('Unauthorized: Only Super Admins can access this panel.');
           return;
         }
 
+        console.log("Fetching admins with token:", token);
         const response = await axios.get(`${API_URL}/admins`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -37,20 +51,26 @@ const AdminPanel = () => {
     fetchAdmins();
   }, [token, userRole]);
 
+  // Create Admin
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await axios.post(`${API_URL}/signup-admin`, {
-        email,
-        password,
-      });
+      if (!token) {
+        setError('No token found.');
+        return;
+      }
+      
+      const response = await axios.post(`${API_URL}/create-admin`, 
+        { email, password },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
       setSuccess(response.data.message);
       setError(null);
       setEmail('');
       setPassword('');
 
-      // Refresh the list after successful creation
+      // Refresh admin list
       const updatedAdmins = await axios.get(`${API_URL}/admins`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -62,15 +82,22 @@ const AdminPanel = () => {
     }
   };
 
+  // Delete Admin
   const handleDeleteAdmin = async (adminId) => {
     try {
+      if (!token) {
+        setError('No token found.');
+        return;
+      }
+
       await axios.delete(`${API_URL}/admin/${adminId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       setSuccess('Admin deleted successfully');
       setError(null);
 
-      // Refresh the list after deletion
+      // Refresh admin list
       const updatedAdmins = await axios.get(`${API_URL}/admins`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -81,6 +108,11 @@ const AdminPanel = () => {
       setSuccess(null);
     }
   };
+
+  // Block access if not super admin
+  if (!token) {
+    return <p>You need to log in to access the admin panel.</p>;
+  }
 
   if (userRole !== 'superAdmin') {
     return <p>You are not authorized to access the admin panel.</p>;
