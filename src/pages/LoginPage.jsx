@@ -24,30 +24,34 @@ const Login = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input 
-        type="email" 
-        value={email} 
-        onChange={(e) => setEmail(e.target.value)} 
-        placeholder="Email" 
-        required 
-      />
-      <input 
-        type="password" 
-        value={password} 
-        onChange={(e) => setPassword(e.target.value)} 
-        placeholder="Password" 
-        required 
-      />
-      
-      <button type="submit">
-        {isSignUp ? 'Sign Up' : 'Login'}
-      </button>
-      
-      <p onClick={() => setIsSignUp(!isSignUp)} style={{ cursor: 'pointer', color: 'blue' }}>
-        {isSignUp ? 'Already have an account? Login' : "Don't have an account? Sign Up"}
-      </p>
-    </form>
+    <div>
+      <h1>Welcome to the Company Financial Tracker!</h1>
+      <p>Manage your finances efficiently!</p>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          required
+        />
+
+        <button type="submit">
+          {isSignUp ? 'Sign Up' : 'Login'}
+        </button>
+
+        <p onClick={() => setIsSignUp(!isSignUp)} style={{ cursor: 'pointer', color: 'blue' }}>
+          {isSignUp ? 'Already have an account? Login' : "Don't have an account? Sign Up"}
+        </p>
+      </form>
+    </div>
   );
 };
 
