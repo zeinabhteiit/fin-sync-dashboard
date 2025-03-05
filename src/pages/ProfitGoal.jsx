@@ -138,7 +138,6 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh', 
-    marginLeft: '500px'
   },
   content: {
     width: '100%',

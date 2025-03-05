@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import "../styles/Admin.css"
 
 const API_URL = 'http://localhost:5000/api/auth'; // Adjust based on your backend
 
