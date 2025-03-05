@@ -7,6 +7,7 @@ const API_URL = 'http://localhost:5000/api/auth'; // Adjust based on your backen
 
 const AdminPanel = () => {
   const { user, token } = useAuth();
+  const userId = user?.id;
   const userRole = user?.role;
 
   const [admins, setAdmins] = useState([]);
