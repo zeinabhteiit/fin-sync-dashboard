@@ -1,69 +1,121 @@
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
-const API_URL = import.meta.env.VITE_API_URL; // Define the API_URL
+const API_URL = 'http://localhost:5000/api/auth'; // Adjust based on your backend
 
 const AdminPanel = () => {
+  const { user, token } = useAuth();
+  const userRole = user?.role;
+
   const [admins, setAdmins] = useState([]);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/auth/admins`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        if (userRole !== 'superAdmin') {
+          setError('Unauthorized: Only Super Admins can access this panel.');
+          return;
+        }
+
+        const response = await axios.get(`${API_URL}/admins`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-  
-        console.log("API Response:", response.data); // Debugging log
-  
-        setAdmins(response.data.admins || []); // Ensure it's always an array
-      } catch (error) {
-        console.error('Error fetching admins:', error.response?.data?.error || error.message);
-        setAdmins([]); // Set empty array to avoid undefined issues
+        setAdmins(response.data);
+      } catch (err) {
+        console.error('Error fetching admins:', err);
+        setError(err.response?.data?.error || 'Failed to fetch admins');
       }
     };
-  
+
     fetchAdmins();
-  }, []);
-  
+  }, [token, userRole]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post(`${API_URL}/signup-admin`, {
+        email,
+        password,
+      });
+      setSuccess(response.data.message);
+      setError(null);
+      setEmail('');
+      setPassword('');
+
+      // Refresh the list after successful creation
+      const updatedAdmins = await axios.get(`${API_URL}/admins`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAdmins(updatedAdmins.data);
+    } catch (err) {
+      console.error('Error creating admin:', err);
+      setError(err.response?.data?.error || 'Failed to create admin');
+      setSuccess(null);
+    }
+  };
+
   const handleDeleteAdmin = async (adminId) => {
-    if (!window.confirm('Are you sure you want to delete this admin?')) return;
-
     try {
-      await axios.delete(`${API_URL}/api/auth/admin/${adminId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      await axios.delete(`${API_URL}/admin/${adminId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setAdmins(admins.filter((admin) => admin.id !== adminId));
-    } catch (error) {
-      console.error('Error deleting admin:', error.response?.data?.error || error.message);
+      setSuccess('Admin deleted successfully');
+      setError(null);
+
+      // Refresh the list after deletion
+      const updatedAdmins = await axios.get(`${API_URL}/admins`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAdmins(updatedAdmins.data);
+    } catch (err) {
+      console.error('Error deleting admin:', err);
+      setError(err.response?.data?.error || 'Failed to delete admin');
+      setSuccess(null);
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      await axios.post(`${API_URL}/api/auth/signout`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      // Clear the token from local storage
-      localStorage.removeItem('token');
-      // Optionally redirect the user or update the state
-      window.location.href = '/login'; // Redirect to the login page
-    } catch (error) {
-      console.error('Error signing out:', error.response?.data?.error || error.message);
-    }
-  };
-  
+  if (userRole !== 'superAdmin') {
+    return <p>You are not authorized to access the admin panel.</p>;
+  }
 
   return (
     <div>
-      <h2>All Admins</h2>
-      <button onClick={handleSignOut}>Sign Out</button> {/* Add Sign Out button */}
+      <h2>Admin Panel</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {success && <p style={{ color: 'green' }}>{success}</p>}
+
+      <h3>Create Admin</h3>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Email:</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </div>
+        <button type="submit">Create Admin</button>
+      </form>
+
+      <h3>All Admins</h3>
       <ul>
-        {admins.map((admin) => (
-          <li key={admin.id}>
-            {admin.name} - {admin.email} 
-            <button onClick={() => handleDeleteAdmin(admin.id)}>Delete</button>
-          </li>
-        ))}
+        {admins.length > 0 ? (
+          admins.map((admin) => (
+            <li key={admin.id}>
+              <strong>Email:</strong> {admin.email} |
+              <strong> Role:</strong> {admin.role} |
+              <button onClick={() => handleDeleteAdmin(admin.id)}>Delete</button>
+            </li>
+          ))
+        ) : (
+          <p>No admins found.</p>
+        )}
       </ul>
     </div>
   );
