@@ -15,30 +15,25 @@ const ProfitGoal = () => {
   const [success, setSuccess] = useState(null);
 
   useEffect(() => {
-    const fetchProfitGoals = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/profit-goals`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log('Axios Response:', response);
-        console.log('Axios Response Data:', response.data);
-
-        if (response.data && Array.isArray(response.data)) {
-          setProfitGoals(response.data);  
-        } else if (response.data && typeof response.data === 'object' && response.data.error) {
-          setError(response.data.error); 
-        } else {
-          console.log('No profit goals data or not an array');
-          setProfitGoals([]); 
-        }
-      } catch (err) {
-        console.error('Error fetching profit goals:', err);
-        setError(err.response?.data?.error || 'Failed to fetch profit goals');
-      }
-    };
-
     fetchProfitGoals();
   }, [token]);
+
+  const fetchProfitGoals = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/profit-goals`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (Array.isArray(response.data)) {
+        setProfitGoals(response.data);
+      } else {
+        setProfitGoals([]);
+      }
+    } catch (err) {
+      console.error('Error fetching profit goals:', err);
+      setError(err.response?.data?.error || 'Failed to fetch profit goals');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,45 +44,51 @@ const ProfitGoal = () => {
     }
 
     try {
-      const response = await axios.post(`http://localhost:5000/api/profit-goals`, {
-        targetProfit,
-        startDate,
-        endDate,
-        userId: userId, // Automatically include user ID from auth context
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.post(
+        `http://localhost:5000/api/profit-goals`,
+        { targetProfit, startDate, endDate, userId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-      console.log('Create Profit Goal Response:', response);
       setSuccess(response.data.message);
       setError(null);
       setTargetProfit('');
       setStartDate('');
       setEndDate('');
-
-      const updatedGoals = await axios.get(`http://localhost:5000/api/profit-goals`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log('Updated Profit Goals Response:', updatedGoals);
-      if (updatedGoals.data && Array.isArray(updatedGoals.data)) {
-        setProfitGoals(updatedGoals.data);  
-      } else {
-        console.log('No updated profit goals data or not an array');
-        setProfitGoals([]); 
-      }
+      fetchProfitGoals();
     } catch (err) {
-      console.error('Error creating profit goal:', err);
       setError(err.response?.data?.error || 'Failed to create profit goal');
       setSuccess(null);
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this profit goal?')) return;
+  
+    try {
+      const response = await axios.delete(`http://localhost:5000/api/profit-goals/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      if (response.status === 200) {
+        setSuccess('Profit goal deleted successfully!');
+        fetchProfitGoals();
+      } else {
+        setError('Failed to delete profit goal.');
+      }
+    } catch (err) {
+      console.error('Error deleting profit goal:', err);
+      setError(err.response?.data?.error || 'Failed to delete profit goal');
+    }
+  };
+  
+  
   return (
     <div style={styles.container}>
       <div style={styles.content}>
         <h2>Profit Goals</h2>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {success && <p style={{ color: 'green' }}>{success}</p>}
+        {error && <p style={{ color: 'purple' }}>{error}</p>}
+        {success && <p style={{ color: 'pink' }}>{success}</p>}
 
         <ul>
           {profitGoals.length > 0 ? (
@@ -96,10 +97,15 @@ const ProfitGoal = () => {
                 <strong>Target Profit:</strong> {profitGoal.target_profit} |
                 <strong> Start Date:</strong> {profitGoal.start_date} |
                 <strong> End Date:</strong> {profitGoal.end_date}
+                {userRole === 'superAdmin' && (
+                  <button onClick={() => handleDelete(profitGoal.id)} style={styles.deleteButton}>
+                    Delete
+                  </button>
+                )}
               </li>
             ))
           ) : (
-            <p>No profit goals found. (Check console logs!)</p>
+            <p>No profit goals found.</p>
           )}
         </ul>
 
@@ -137,13 +143,22 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: '100vh', 
+    minHeight: '100vh',
   },
   content: {
     width: '100%',
-    maxWidth: '800px', 
+    maxWidth: '800px',
     padding: '20px',
-    backgroundColor: '#fff', 
-    borderRadius: '8px', 
+    backgroundColor: '#fff',
+    borderRadius: '8px',
+  },
+  deleteButton: {
+    marginLeft: '10px',
+    backgroundColor: 'pink',
+    color: 'white',
+    border: 'none',
+    padding: '5px 10px',
+    cursor: 'pointer',
+    borderRadius: '5px',
   },
 };

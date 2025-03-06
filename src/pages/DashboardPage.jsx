@@ -1,62 +1,138 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import Transactions from "../components/Transactions";
-import Analytics from "../components/Analytics";
-import Card from "../components/Card";
-import "../styles/Dashboard.css"; // Correct path to your CSS file
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend, ResponsiveContainer } from "recharts";
+import "../styles/dashboard.css";
+
+// Replace with your actual API endpoints
+const INCOME_API_URL = "https://fin-sync.onrender.com/api/fixed-income";
+const EXPENSES_API_URL = "https://fin-sync.onrender.com/api/fixed-expenses";
+const RECURRING_INCOME_API_URL = "https://fin-sync.onrender.com/api/recurring-incomes";
+const RECURRING_EXPENSES_API_URL = "https://fin-sync.onrender.com/api/recurring-expenses";
+const PROFIT_GOAL_API_URL = "http://localhost:5000/api/profit-goals"; // New API endpoint
 
 const DashboardPage = () => {
-  const [user, setUser] = useState(null);
+  const [barChartData, setBarChartData] = useState([]);
+  const [pieChartData, setPieChartData] = useState([]);
+  const [profitGoal, setProfitGoal] = useState({ collected: 0, goal: 0 }); // New state for profit goal
   const [loading, setLoading] = useState(true);
-  const [adminData, setAdminData] = useState(null);
-  const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
+  // Fetch Data from API
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession(); // Check session from Supabase
+    const fetchData = async () => {
+      try {
+        // Fetch Income, Expenses, Recurring Income, Recurring Expenses, and Profit Goal data
+        const [incomeResponse, expensesResponse, recurringIncomeResponse, profitGoalResponse] = await Promise.all([
+          axios.get(INCOME_API_URL),
+          axios.get(EXPENSES_API_URL),
+          axios.get(RECURRING_INCOME_API_URL),  // Use the recurring income API
+          axios.get(PROFIT_GOAL_API_URL) // Fetch profit goal data
+        ]);
 
-      console.log("Session:", session);  // Log session for debugging
-      if (error) {
-        console.error("Error fetching session:", error);
-      }
+        console.log("Income Data:", incomeResponse.data);  // Debugging
+        console.log("Expenses Data:", expensesResponse.data);  // Debugging
+        console.log("Recurring Income Data:", recurringIncomeResponse.data);  // Debugging
+        console.log("Profit Goal Data:", profitGoalResponse.data); // Debugging
 
-      if (!session) {
-        navigate("/login");  // If no session, navigate to login page
-      } else {
-        setUser(session.user);  // Set user if session exists
-        setLoading(false);  // Stop loading once session is confirmed
+        // Combine Income and Expenses into one object
+        if (incomeResponse.data && expensesResponse.data) {
+          const combinedData = incomeResponse.data.map((incomeItem, index) => ({
+            name: incomeItem.month,
+            income: incomeItem.amount,
+            expenses: expensesResponse.data[index] ? expensesResponse.data[index].amount : 0,
+          }));
+
+          setBarChartData(combinedData);
+        }
+
+        // Prepare the Pie Chart data for Income and Expenses
+        setPieChartData([ 
+          { name: "Income", value: incomeResponse.data.reduce((sum, item) => sum + item.amount, 0) }, // Sum of income
+          { name: "Expenses", value: expensesResponse.data.reduce((sum, item) => sum + item.amount, 0) }, // Sum of expenses
+        ]);
+
+        // Set Profit Goal
+        if (profitGoalResponse.data) {
+          setProfitGoal({
+            collected: profitGoalResponse.data.collected,
+            goal: profitGoalResponse.data.goal
+          });
+        }
+
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+        setError("Failed to load data. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    checkSession();
-  }, [navigate]);
+    fetchData();
+  }, []);  // Empty dependency array ensures this effect runs once on mount
 
-  if (loading) return <div>Loading...</div>;  // Loading message
+  // Pie chart colors for Income and Expenses
+  const COLORS = ["#C0A0D8", "#FFB6C1"];  //  for Income,  for Expenses
 
   return (
     <div className="dashboard-container">
-      <Sidebar />
-      <div className="dashboard-content">
-        <h1>FinSync</h1>
-        {user ? (
-           <p> Dashboard </p>
-          // <p>Welcome, {user.email}</p> // Display the user email if session exists
-        ) : (
-          <p>No user found</p>
-        )}
-        
-        {/* Dashboard Widgets Section */}
-        <div className="dashboard-widgets">
-          <Card />
-          <Analytics />
-          <Transactions />
-        </div>
-      </div>
+      
+      {/* Show Loading State */}
+      {loading && <p>Loading data...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {/* If Data is Available, Show Charts */}
+      {!loading && !error && (
+        <>
+          <div className="charts-wrapper" style={{ display: "flex", justifyContent: "space-between", gap: "50px", marginTop: "40px" }}>
+            {/* Bar Chart Section */}
+            <div className="chart-section" style={{ flex: 1, textAlign: "center" }}>
+              <h3>Income vs. Expenses</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={barChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="income" fill="#C0A0D8" />
+                  <Bar dataKey="expenses" fill="#FFB6C1" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Pie Chart Section */}
+            <div className="chart-section" style={{ flex: 1, textAlign: "center" }}>
+              <h3>Income vs. Expenses Breakdown</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie data={pieChartData} cx="50%" cy="50%" outerRadius={100} fill="#8884d8" label>
+                    {pieChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Profit Goal Section Below the Charts */}
+          <div className="profit-goal-section" style={{ marginTop: "40px", textAlign: "center" }}>
+            <h3>Profit Goal Progress</h3>
+            <div className="profit-goal-progress" style={{ display: "flex", justifyContent: "center", gap: "20px" }}>
+              <div className="progress-bar" style={{ width: "50%" }}>
+                <progress value={profitGoal.collected} max={profitGoal.goal} style={{ width: "100%" }} />
+              </div>
+              <div className="profit-goal-details" style={{ flex: 1 }}>
+                <p><strong>Collected:</strong> ${profitGoal.collected}</p>
+                <p><strong>Goal:</strong> ${profitGoal.goal}</p>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
 
 export default DashboardPage;
-
-
