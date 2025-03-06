@@ -1,80 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import "../styles/Admin.css";
+import "../styles/admin.css"
 
 const API_URL = 'http://localhost:5000/api/auth'; // Adjust based on your backend
 
 const AdminPanel = () => {
   const { user, token } = useAuth();
+  const userRole = user?.role;
+
   const [admins, setAdmins] = useState([]);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  // Get userId & role safely
-  const userId = user?.id;
-  const userRole = user?.role ; // Normalize role
-
-  // Debugging logs
-  useEffect(() => {
-    console.log("User:", user);
-    console.log("Token:", token);
-    console.log("User Role:", userRole);
-  }, [user, token, userRole]);
-
-  // Fetch Admins if Super Admin
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
-        if (!token) {
-          setError('No token found. Please log in.');
-          return;
-        }
-        if (userRole !== 'superAdmin') {
-          setError('Unauthorized: Only Super Admins can access this panel.');
-          return;
-        }
-
-        console.log("Fetching admins with token:", token);
         const response = await axios.get(`${API_URL}/admins`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setAdmins(response.data);
+        console.log('Axios Response:', response);
+        console.log('Axios Response Data:', response.data);
+
+        if (response.data && response.data.admins) {
+          setAdmins(response.data.admins);  
+        } else if (response.data && typeof response.data === 'object' && response.data.error) {
+          setError(response.data.error); 
+        } else {
+          console.log('No admins data or not an array');
+          setAdmins([]); 
+        }
       } catch (err) {
         console.error('Error fetching admins:', err);
         setError(err.response?.data?.error || 'Failed to fetch admins');
       }
     };
 
-    fetchAdmins();
+    if (token && userRole === 'superAdmin') {
+      fetchAdmins();
+    }
   }, [token, userRole]);
 
-  // Create Admin
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      if (!token) {
-        setError('No token found.');
-        return;
-      }
-      
-      const response = await axios.post(`${API_URL}/create-admin`, 
-        { email, password },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
 
+    if (userRole !== 'superAdmin') {
+      setError('Unauthorized: Only Super Admins can create admins.');
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${API_URL}/signup-admin`, {
+        email,
+        password,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log('Create Admin Response:', response);
       setSuccess(response.data.message);
       setError(null);
       setEmail('');
       setPassword('');
 
-      // Refresh admin list
-      const updatedAdmins = await axios.get(`${API_URL}/admins`, {
+      const updatedAdminsResponse = await axios.get(`${API_URL}/admins`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setAdmins(updatedAdmins.data);
+      if (updatedAdminsResponse.data && updatedAdminsResponse.data.admins) {
+        setAdmins(updatedAdminsResponse.data.admins);  
+      } else {
+        console.log('No updated admins data or not an array');
+        setAdmins([]); 
+      }
     } catch (err) {
       console.error('Error creating admin:', err);
       setError(err.response?.data?.error || 'Failed to create admin');
@@ -82,11 +81,10 @@ const AdminPanel = () => {
     }
   };
 
-  // Delete Admin
   const handleDeleteAdmin = async (adminId) => {
     try {
-      if (!token) {
-        setError('No token found.');
+      if (userRole !== 'superAdmin') {
+        setError('Unauthorized: Only Super Admins can delete admins.');
         return;
       }
 
@@ -97,11 +95,15 @@ const AdminPanel = () => {
       setSuccess('Admin deleted successfully');
       setError(null);
 
-      // Refresh admin list
-      const updatedAdmins = await axios.get(`${API_URL}/admins`, {
+      const updatedAdminsResponse = await axios.get(`${API_URL}/admins`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setAdmins(updatedAdmins.data);
+      if (updatedAdminsResponse.data && updatedAdminsResponse.data.admins) {
+        setAdmins(updatedAdminsResponse.data.admins);  
+      } else {
+        console.log('No updated admins data or not an array');
+        setAdmins([]); 
+      }
     } catch (err) {
       console.error('Error deleting admin:', err);
       setError(err.response?.data?.error || 'Failed to delete admin');
@@ -109,7 +111,6 @@ const AdminPanel = () => {
     }
   };
 
-  // Block access if not super admin
   if (!token) {
     return <p>You need to log in to access the admin panel.</p>;
   }
