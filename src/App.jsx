@@ -6,7 +6,7 @@ import AdminPanel from "./pages/AdminPanel";
 import ProfitGoal from "./pages/ProfitGoal";
 import Sidebar from "./components/Sidebar";  // Import Sidebar
 import { AuthProvider } from "./context/AuthContext";
-import Transactions from "./components/Transactions";
+import Transactions from "./pages/Transactions";
 
 // AppLayout component with Sidebar
 const AppLayout = ({ children }) => (
