@@ -7,6 +7,7 @@ import ProfitGoal from "./pages/ProfitGoal";
 import Sidebar from "./components/Sidebar";  // Import Sidebar
 import { AuthProvider } from "./context/AuthContext";
 import Transactions from "./pages/Transactions";
+import Report from "./components/Analytics"
 
 // AppLayout component with Sidebar
 const AppLayout = ({ children }) => (
@@ -31,6 +32,7 @@ const App = () => {
           <Route path="/admin" element={<AppLayout><AdminPanel /></AppLayout>} />
           <Route path="/profit" element={<AppLayout><ProfitGoal /></AppLayout>} />
           <Route path="/transactions" element={<AppLayout><Transactions /></AppLayout>} />
+          <Route path="/analytics" element={<AppLayout><Report /></AppLayout>} />
         </Routes>
       </Router>
     </AuthProvider>
