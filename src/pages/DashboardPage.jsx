@@ -74,64 +74,102 @@ const DashboardPage = () => {
   const COLORS = ["#C0A0D8", "#FFB6C1"];  //  for Income,  for Expenses
 
   return (
-    <div className="dashboard-container">
-      
-      {/* Show Loading State */}
-      {loading && <p>Loading data...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+   <div classname= "dashboard">
+    <center>
+  <h1>FinSync</h1>
+  </center>
+<div className="dashboard-container"> 
+  {/* Show Loading State */}
+  {loading && <p>Loading data...</p>}
+  {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {/* If Data is Available, Show Charts */}
-      {!loading && !error && (
-        <>
-          <div className="charts-wrapper" style={{ display: "flex", justifyContent: "space-between", gap: "50px", marginTop: "40px" }}>
-            {/* Bar Chart Section */}
-            <div className="chart-section" style={{ flex: 1, textAlign: "center" }}>
-              <h3>Income vs. Expenses</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={barChartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="income" fill="#C0A0D8" />
-                  <Bar dataKey="expenses" fill="#FFB6C1" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+  {/* If Data is Available, Show Charts */}
+  {!loading && !error && (
+    <>
+      <div
+        className="charts-wrapper"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "50px",
+          marginTop: "40px",
+          marginBottom: "40px", // Add margin bottom here
+        }}
+      >
+        {/* Bar Chart Section */}
+        <div className="chart-section" style={{ flex: 1, textAlign: "center" }}>
+          <h3 style={{ marginBottom: "45px" }}>Income vs. Expenses</h3> {/* Increased margin-bottom */}
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={barChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="income" fill="#C0A0D8" />
+              <Bar dataKey="expenses" fill="#FFB6C1" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
 
-            {/* Pie Chart Section */}
-            <div className="chart-section" style={{ flex: 1, textAlign: "center" }}>
-              <h3>Income vs. Expenses Breakdown</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie data={pieChartData} cx="50%" cy="50%" outerRadius={100} fill="#8884d8" label>
-                    {pieChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+        {/* Pie Chart Section */}
+        <div className="chart-section" style={{ flex: 1, textAlign: "center" }}>
+          <h3 style={{ marginBottom: "20px" }}>Income vs. Expenses Breakdown</h3> {/* Increased margin-bottom */}
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={pieChartData}
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#8884d8"
+                label
+              >
+                {pieChartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Profit Goal Section Below the Charts */}
+      <div
+        className="profit-goal-section"
+        style={{ marginTop: "40px", textAlign: "center" }}
+      >
+        <h3 style={{ marginBottom: "85px" }}>Profit Goal Progress</h3>
+        <div
+          className="profit-goal-progress"
+          style={{ display: "flex", justifyContent: "center", gap: "20px" }}
+        >
+          <div className="progress-bar" style={{ width: "50%" }}>
+            {/* Change progress bar color to purple */}
+            <progress
+              value={profitGoal.collected}
+              max={profitGoal.goal}
+              style={{
+                width: "100%",
+                accentColor: "#800080", // Purple color for better browser compatibility
+              }}
+            />
           </div>
-
-          {/* Profit Goal Section Below the Charts */}
-          <div className="profit-goal-section" style={{ marginTop: "40px", textAlign: "center" }}>
-            <h3>Profit Goal Progress</h3>
-            <div className="profit-goal-progress" style={{ display: "flex", justifyContent: "center", gap: "20px" }}>
-              <div className="progress-bar" style={{ width: "50%" }}>
-                <progress value={profitGoal.collected} max={profitGoal.goal} style={{ width: "100%" }} />
-              </div>
-              <div className="profit-goal-details" style={{ flex: 1 }}>
-                <p><strong>Collected:</strong> ${profitGoal.collected}</p>
-                <p><strong>Goal:</strong> ${profitGoal.goal}</p>
-              </div>
-            </div>
+          <div className="profit-goal-details" style={{ flex: 1 }}>
+            <p>
+              <strong>Collected:</strong> ${profitGoal.collected}
+            </p>
+            <p>
+              <strong>Goal:</strong> ${profitGoal.goal}
+            </p>
           </div>
-        </>
-      )}
-    </div>
+        </div>
+      </div>
+    </>
+  )}
+</div>
+</div>
   );
 };
 
