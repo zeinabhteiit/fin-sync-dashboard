@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchExpenses, createExpense } from "../services/expensesService";
+import { fetchExpenses, createExpense, updateExpense, deleteExpense } from "../services/expensesService";
 
 const ExpenseList = () => {
   const [expenseList, setExpenseList] = useState([]);
@@ -12,6 +12,9 @@ const ExpenseList = () => {
     category_id: "",
     user_id: "",
   });
+
+  const [editingExpenseId, setEditingExpenseId] = useState(null);
+  const [editData, setEditData] = useState({ title: "", description: "", amount: "", currency: "", date: "", category_id: "", user_id: "" });
 
   useEffect(() => {
     loadExpenses();
@@ -34,17 +37,43 @@ const ExpenseList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await createExpense(formData);
-      console.log("✅ Expense successfully added:", response.data);
-      
-      // Refresh expense list immediately
+      await createExpense(formData);
+      console.log("✅ Expense successfully added!");
       await loadExpenses();
-
-      alert("Expense added successfully!");
       setFormData({ title: "", description: "", amount: "", currency: "USD", date: "", category_id: "", user_id: "" });
     } catch (error) {
       console.error("❌ Failed to add expense:", error.response?.data || error.message);
-      alert("Error adding expense. Check the console for details.");
+    }
+  };
+
+  const handleEditClick = (expense) => {
+    setEditingExpenseId(expense.id);
+    setEditData({ ...expense });
+  };
+
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
+
+  const handleUpdate = async () => {
+    try {
+      await updateExpense(editingExpenseId, editData);
+      console.log("✅ Expense successfully updated!");
+      await loadExpenses();
+      setEditingExpenseId(null);
+    } catch (error) {
+      console.error("❌ Failed to update expense:", error.response?.data || error.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this expense?")) return;
+    try {
+      await deleteExpense(id);
+      console.log("✅ Expense successfully deleted!");
+      await loadExpenses();
+    } catch (error) {
+      console.error("❌ Failed to delete expense:", error.response?.data || error.message);
     }
   };
 
@@ -52,7 +81,7 @@ const ExpenseList = () => {
     <div>
       <h2>Fixed Expenses List</h2>
       <table border="1" cellPadding="8" cellSpacing="0">
-        <thead>
+      <thead style={{ backgroundColor: "pink" }}>
           <tr>
             <th>Title</th>
             <th>Description</th>
@@ -61,24 +90,57 @@ const ExpenseList = () => {
             <th>Date</th>
             <th>Category ID</th>
             <th>User ID</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {expenseList.length > 0 ? (
-            expenseList.map((expense, index) => (
-              <tr key={expense.id || index}>
-                <td>{expense.title}</td>
-                <td>{expense.description || "N/A"}</td>
-                <td>{expense.amount}</td>
-                <td>{expense.currency}</td>
-                <td>{new Date(expense.date).toLocaleDateString()}</td>
-                <td>{expense.category_id}</td>
-                <td>{expense.user_id}</td>
+            expenseList.map((expense) => (
+              <tr key={expense.id}>
+                {editingExpenseId === expense.id ? (
+                  <>
+                    <td><input type="text" name="title" value={editData.title} onChange={handleEditChange} /></td>
+                    <td><input type="text" name="description" value={editData.description} onChange={handleEditChange} /></td>
+                    <td><input type="number" name="amount" value={editData.amount} onChange={handleEditChange} /></td>
+                    <td><input type="text" name="currency" value={editData.currency} onChange={handleEditChange} /></td>
+                    <td><input type="date" name="date" value={editData.date} onChange={handleEditChange} /></td>
+                    <td><input type="text" name="category_id" value={editData.category_id} onChange={handleEditChange} /></td>
+                    <td><input type="text" name="user_id" value={editData.user_id} onChange={handleEditChange} /></td>
+                    <td>
+                      <button onClick={handleUpdate}>Save</button>
+                      <button onClick={() => setEditingExpenseId(null)}>Cancel</button>
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    <td>{expense.title}</td>
+                    <td>{expense.description || "N/A"}</td>
+                    <td>{expense.amount}</td>
+                    <td>{expense.currency}</td>
+                    <td>{new Date(expense.date).toLocaleDateString()}</td>
+                    <td>{expense.category_id}</td>
+                    <td>{expense.user_id}</td>
+                    <td>
+                    <button 
+                      onClick={() => handleEdit(income)} 
+                      style={{ backgroundColor: "#BE5985", color: "white", padding: "5px 15px", margin: "8px" }}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(income.id)} 
+                      style={{ backgroundColor: "#BE5985", color: "white", padding: "5px 15px" }}
+                    >
+                      Delete
+                    </button>
+                    </td>
+                  </>
+                )}
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="7">No expense records found.</td>
+              <td colSpan="8">No expense records found.</td>
             </tr>
           )}
         </tbody>

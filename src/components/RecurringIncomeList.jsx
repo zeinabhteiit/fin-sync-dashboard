@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchRecurringIncome, createRecurringIncome } from "../services/recurringIncomeService";
+import { fetchRecurringIncome, createRecurringIncome, updateRecurringIncome, deleteRecurringIncome } from "../services/recurringIncomeService";
 
 const RecurringIncomeList = () => {
   const [recurringIncomeList, setRecurringIncomeList] = useState([]);
@@ -8,12 +8,13 @@ const RecurringIncomeList = () => {
     description: "",
     amount: "",
     currency: "USD",
-    start_date: "",
-    end_date: "",
-    recurrence: "",
+    start: "",
+    finish: "",
+    frequency: "",
     category_id: "",
     user_id: "",
   });
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     loadRecurringIncome();
@@ -36,17 +37,48 @@ const RecurringIncomeList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await createRecurringIncome(formData);
-      console.log("✅ Recurring Income successfully added:", response.data);
-      
-      // Refresh recurring income list immediately
-      await loadRecurringIncome();
+      if (editingId) {
+        await updateRecurringIncome(editingId, formData);
+        alert("Recurring income updated successfully!");
+      } else {
+        await createRecurringIncome(formData);
+        alert("Recurring income added successfully!");
+      }
 
-      alert("Recurring Income added successfully!");
-      setFormData({ title: "", description: "", amount: "", currency: "USD", start_date: "", end_date: "", recurrence: "", category_id: "", user_id: "" });
+      setEditingId(null);
+      setFormData({ title: "", description: "", amount: "", currency: "USD", start: "", finish: "", frequency: "", category_id: "", user_id: "" });
+      loadRecurringIncome();
     } catch (error) {
-      console.error("❌ Failed to add recurring income:", error.response?.data || error.message);
-      alert("Error adding recurring income. Check the console for details.");
+      console.error("❌ Error:", error.response?.data || error.message);
+      alert("Error processing recurring income. Check console for details.");
+    }
+  };
+
+  const handleEdit = (income) => {
+    setEditingId(income.id);
+    setFormData({
+      title: income.title,
+      description: income.description,
+      amount: income.amount,
+      currency: income.currency,
+      start: income.start.split("T")[0],
+      finish: income.finish.split("T")[0],
+      frequency: income.frequency,
+      category_id: income.category_id,
+      user_id: income.user_id,
+    });
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this recurring income?")) {
+      try {
+        await deleteRecurringIncome(id);
+        alert("Recurring income deleted successfully!");
+        loadRecurringIncome();
+      } catch (error) {
+        console.error("❌ Error deleting recurring income:", error.response?.data || error.message);
+        alert("Error deleting recurring income. Check console for details.");
+      }
     }
   };
 
@@ -61,10 +93,11 @@ const RecurringIncomeList = () => {
             <th>Amount</th>
             <th>Currency</th>
             <th>Start Date</th>
-            <th>End Date</th>
-            <th>Recurrence</th>
+            <th>Finish Date</th>
+            <th>Frequency</th>
             <th>Category ID</th>
             <th>User ID</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -75,33 +108,44 @@ const RecurringIncomeList = () => {
                 <td>{income.description || "N/A"}</td>
                 <td>{income.amount}</td>
                 <td>{income.currency}</td>
-                <td>{new Date(income.start_date).toLocaleDateString()}</td>
-                <td>{new Date(income.end_date).toLocaleDateString()}</td>
-                <td>{income.recurrence}</td>
+                <td>{new Date(income.start).toLocaleDateString()}</td>
+                <td>{new Date(income.finish).toLocaleDateString()}</td>
+                <td>{income.frequency}</td>
                 <td>{income.category_id}</td>
                 <td>{income.user_id}</td>
+                <td>
+                  <button onClick={() => handleEdit(income)}>Edit</button>
+                  <button onClick={() => handleDelete(income.id)} style={{ marginLeft: "5px", color: "red" }}>
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="9">No recurring income records found.</td>
+              <td colSpan="10">No recurring income records found.</td>
             </tr>
           )}
         </tbody>
       </table>
 
-      <h3>Add Recurring Income</h3>
+      <h3>{editingId ? "Edit Recurring Income" : "Add Recurring Income"}</h3>
       <form onSubmit={handleSubmit}>
         <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="Title" required />
         <input type="text" name="description" value={formData.description} onChange={handleChange} placeholder="Description" />
         <input type="number" name="amount" value={formData.amount} onChange={handleChange} placeholder="Amount" required />
         <input type="text" name="currency" value={formData.currency} onChange={handleChange} placeholder="Currency" required />
-        <input type="date" name="start_date" value={formData.start_date} onChange={handleChange} required />
-        <input type="date" name="end_date" value={formData.end_date} onChange={handleChange} required />
-        <input type="text" name="recurrence" value={formData.recurrence} onChange={handleChange} placeholder="Recurrence (e.g., monthly, weekly)" required />
+        <input type="date" name="start" value={formData.start} onChange={handleChange} required />
+        <input type="date" name="finish" value={formData.finish} onChange={handleChange} required />
+        <input type="text" name="frequency" value={formData.frequency} onChange={handleChange} placeholder="Frequency (e.g., monthly, weekly)" required />
         <input type="text" name="category_id" value={formData.category_id} onChange={handleChange} placeholder="Category ID" required />
         <input type="text" name="user_id" value={formData.user_id} onChange={handleChange} placeholder="User ID" required />
-        <button type="submit">Add Recurring Income</button>
+        <button type="submit">{editingId ? "Update Recurring Income" : "Add Recurring Income"}</button>
+        {editingId && (
+          <button type="button" onClick={() => setEditingId(null)} style={{ marginLeft: "10px" }}>
+            Cancel
+          </button>
+        )}
       </form>
     </div>
   );
