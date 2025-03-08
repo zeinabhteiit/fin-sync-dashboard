@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import ReportChart from '../components/Analytics'; // Import the ReportChart component
+
 
 const ProfitGoal = () => {
   const { user, token } = useAuth();
@@ -82,6 +84,7 @@ const ProfitGoal = () => {
     }
   };
   
+  const currentProfitGoal = profitGoals.length > 0 ? profitGoals[0].target_profit : 0;
   
   return (
     <div style={styles.container}>
@@ -131,6 +134,7 @@ const ProfitGoal = () => {
         ) : (
           <p>You are not authorized to create profit goals.</p>
         )}
+        <ReportChart profitGoal={currentProfitGoal} /> {/* Use ReportChart here */}
       </div>
     </div>
   );

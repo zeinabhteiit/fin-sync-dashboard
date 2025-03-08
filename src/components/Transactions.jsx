@@ -3,7 +3,7 @@ import { fetchExpenses } from "../services/expensesService";
 import { fetchIncome } from "../services/incomeService";
 import { fetchRecurringExpenses } from "../services/recurringExpenseService";
 import { fetchRecurringIncome } from "../services/recurringIncomeService";
-import ExpenseList from "../components/Expenseslist";
+import ExpenseList from "../components/ExpensesList";
 import IncomeList from "../components/IncomeList";
 import RecurringExpenseList from "../components/RecurringExpenseList";
 import RecurringIncomeList from "../components/RecurringIncomeList";

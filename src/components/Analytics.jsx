@@ -1,78 +1,96 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { subWeeks, subMonths, subYears } from "date-fns";
 
-const API_BASE = "https://fin-sync.onrender.com/api";
+const API_BASE = "http://localhost:5000/api";
 const endpoints = [
-  "fixed-income",
-  "fixed-expenses",
-  "recurring-expenses",
-  "recurring-incomes"
+    "fixed-income",
+    "fixed-expenses",
+    "recurring-expenses",
+    "recurring-incomes"
 ];
 
 const INCOME_CATEGORY_ID = "a225765f-8d0c-4c87-86e1-360d48e0ff3d";
 const EXPENSE_CATEGORY_ID = "09315312-047c-43d5-8106-2aec9047e119";
 
-const Report = () => {
-  const [data, setData] = useState([]);
-  const [filter, setFilter] = useState("monthly");
-  const [category, setCategory] = useState("");
-  
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const responses = await Promise.all(
-          endpoints.map(endpoint => axios.get(`${API_BASE}/${endpoint}`))
-        );
-        const combinedData = responses.flatMap(res => res.data);
-        setData(combinedData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, []);
+const ReportChart = ({ profitGoal }) => {
+    const [data, setData] = useState([]);
+    const [progress, setProgress] = useState(0);
 
-  const filterByDate = (items) => {
-    const now = new Date();
-    let fromDate;
-    if (filter === "weekly") fromDate = subWeeks(now, 1);
-    if (filter === "monthly") fromDate = subMonths(now, 1);
-    if (filter === "yearly") fromDate = subYears(now, 1);
-    return items.filter(item => new Date(item.date || item.start) >= fromDate);
-  };
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const responses = await Promise.all(
+                    endpoints.map(endpoint => axios.get(`${API_BASE}/${endpoint}`))
+                );
 
-  const filteredData = filterByDate(data).filter(item =>
-    category ? item.category_id === category : true
-  );
+                const combinedData = responses.flatMap(res => res.data);
+                setData(combinedData);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
 
-  const totalIncome = filteredData
-    .filter(item => item.category_id === INCOME_CATEGORY_ID)
-    .reduce((sum, item) => sum + item.amount, 0);
+        fetchData();
+    }, []);
 
-  const totalExpenses = filteredData
-    .filter(item => item.category_id === EXPENSE_CATEGORY_ID)
-    .reduce((sum, item) => sum + item.amount, 0);
+    useEffect(() => {
+        if (profitGoal && data.length > 0) { // Ensure data is loaded
+            const calculateProgress = () => {
+                // Filter data for the year
+                const currentYear = new Date().getFullYear();
+                const yearlyData = data.filter(item => {
+                    const itemDate = new Date(item.date || item.start);
+                    return itemDate.getFullYear() === currentYear;
+                });
 
-  return (
-    <div>
-      <h2>Financial Report</h2>
-      <label>
-        Filter by:
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-          <option value="yearly">Yearly</option>
-        </select>
-      </label>
-      <label>
-        Category:
-        <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} />
-      </label>
-      <h3>Total Income: ${totalIncome}</h3>
-      <h3>Total Expenses: ${totalExpenses}</h3>
-    </div>
-  );
+                const totalIncome = yearlyData
+                    .filter(item => item.category_id === INCOME_CATEGORY_ID)
+                    .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+                const totalExpenses = yearlyData
+                    .filter(item => item.category_id === EXPENSE_CATEGORY_ID)
+                    .reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+                const netProfit = totalIncome - totalExpenses;
+                const newProgress = Math.min((netProfit / profitGoal) * 100, 100);
+                setProgress(newProgress);
+            };
+
+            calculateProgress();
+        }
+    }, [data, profitGoal]);
+
+    return (
+        <div>
+            <h3>Yearly Progress Towards Goal: {progress.toFixed(2)}%</h3>
+            <div style={{
+                width: '100%',
+                backgroundColor: '#eee',
+                height: '20px',
+                position: 'relative'
+            }}>
+                <div style={{
+                    width: `${progress}%`,
+                    backgroundColor: 'purple',
+                    height: '100%',
+                    transition: 'width 0.3s ease',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0
+                }}></div>
+                <span style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '5px',
+                    transform: 'translateY(-50%)',
+                    color: 'white',
+                    fontSize: '0.8em',
+                    zIndex: 1,
+                    mixBlendMode: 'difference'
+                }}>{progress.toFixed(0)}%</span>
+            </div>
+        </div>
+    );
 };
 
-export default Report;
+export default ReportChart;

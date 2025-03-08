@@ -98,7 +98,7 @@ const DashboardPage = () => {
       >
         {/* Bar Chart Section */}
         <div className="chart-section" style={{ flex: 1, textAlign: "center" }}>
-          <h3 style={{ marginBottom: "45px" }}>Income vs. Expenses</h3> {/* Increased margin-bottom */}
+          <h3 style={{ marginBottom: "48px" }}>Income vs. Expenses</h3> {/* Increased margin-bottom */}
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={barChartData}>
               <CartesianGrid strokeDasharray="3 3" />

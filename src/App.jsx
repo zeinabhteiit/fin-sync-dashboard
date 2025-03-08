@@ -7,7 +7,7 @@ import ProfitGoal from "./pages/ProfitGoal";
 import Sidebar from "./components/Sidebar";  // Import Sidebar
 import { AuthProvider } from "./context/AuthContext";
 import Transactions from "./pages/Transactions";
-import Report from "./components/Analytics"
+import Report from "./pages/Analytics"
 
 // AppLayout component with Sidebar
 const AppLayout = ({ children }) => (
