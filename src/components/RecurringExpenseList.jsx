@@ -95,11 +95,22 @@ const RecurringExpenseList = () => {
     setIsEditing(false);
   };
 
+  // Style
+  const buttonStyle = {
+    backgroundColor: "pink",
+    color: "black",
+    padding: "5px 15px",
+    margin: "5px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  };
+
   return (
     <div>
       <h2>Recurring Expense List</h2>
       <table border="1" cellPadding="8" cellSpacing="0">
-        <thead>
+      <thead style={{ backgroundColor: "pink" }}>
           <tr>
             <th>Title</th>
             <th>Description</th>
@@ -127,8 +138,8 @@ const RecurringExpenseList = () => {
                 <td>{expense.category_id}</td>
                 <td>{expense.user_id}</td>
                 <td>
-                  <button onClick={() => handleEdit(expense)}>Edit</button>
-                  <button onClick={() => handleDelete(expense.id)} style={{ marginLeft: "8px", color: "red" }}>Delete</button>
+                  <button style={buttonStyle} onClick={() => handleEdit(expense)}>Edit</button>
+                  <button style={buttonStyle} onClick={() => handleDelete(expense.id)}>Delete</button>
                 </td>
               </tr>
             ))
@@ -146,12 +157,12 @@ const RecurringExpenseList = () => {
         <input type="text" name="description" value={formData.description} onChange={handleChange} placeholder="Description" />
         <input type="number" name="amount" value={formData.amount} onChange={handleChange} placeholder="Amount" required />
         <input type="text" name="currency" value={formData.currency} onChange={handleChange} placeholder="Currency" required />
-        <input type="date" name="start_date" value={formData.start} onChange={handleChange} required />
-        <input type="date" name="end_date" value={formData.finish} onChange={handleChange} required />
-        <input type="text" name="recurrence" value={formData.frequency} onChange={handleChange} placeholder="Recurrence (e.g., monthly, weekly)" required />
+        <input type="date" name="start" value={formData.start} onChange={handleChange} required />
+        <input type="date" name="finish" value={formData.finish} onChange={handleChange} required />
+        <input type="text" name="frequency" value={formData.frequency} onChange={handleChange} placeholder="Recurrence (e.g., monthly, weekly)" required />
         <input type="text" name="category_id" value={formData.category_id} onChange={handleChange} placeholder="Category ID" required />
         <input type="text" name="user_id" value={formData.user_id} onChange={handleChange} placeholder="User ID" required />
-        <button type="submit">{isEditing ? "Update Recurring Expense" : "Add Recurring Expense"}</button>
+        <button style={buttonStyle} type="submit">{isEditing ? "Update Recurring Expense" : "Add Recurring Expense"}</button>
         {isEditing && <button type="button" onClick={resetForm} style={{ marginLeft: "8px" }}>Cancel</button>}
       </form>
     </div>

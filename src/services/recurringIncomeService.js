@@ -29,7 +29,7 @@ export const createRecurringIncome = async (incomeData) => {
 // Update a recurring income record
 export const updateRecurringIncome = async (id, incomeData) => {
   try {
-    const response = await axios.put($`{API_URL}/${id}`, incomeData, {
+    const response = await axios.put(`${API_URL}/${id}`, incomeData, {
       headers: { "Content-Type": "application/json" },
     });
     return response.data;
@@ -42,7 +42,7 @@ export const updateRecurringIncome = async (id, incomeData) => {
 // Delete a recurring income record
 export const deleteRecurringIncome = async (id) => {
   try {
-    await axios.delete($`{API_URL}/${id}`);
+    await axios.delete(`${API_URL}/${id}`);
   } catch (error) {
     console.error("Error deleting recurring income:", error.response?.data || error.message);
     throw error;

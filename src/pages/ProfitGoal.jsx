@@ -18,7 +18,7 @@ const ProfitGoal = () => {
   const [editingTargetProfit, setEditingTargetProfit] = useState('');
   const [editingStartDate, setEditingStartDate] = useState('');
   const [editingEndDate, setEditingEndDate] = useState('');
-  const [originalProfitGoal, setOriginalProfitGoal] = useState(null); // Store original profit goal being edited
+  const [originalProfitGoal, setOriginalProfitGoal] = useState(null);
 
   useEffect(() => {
     fetchProfitGoals();
@@ -91,13 +91,13 @@ const ProfitGoal = () => {
   const handleEdit = (profitGoal) => {
     setEditingId(profitGoal.id);
     setEditingTargetProfit(profitGoal.target_profit != null ? profitGoal.target_profit : '');
-    setEditingStartDate(profitGoal.start_date != null ? profitGoal.start_date: '');
+    setEditingStartDate(profitGoal.start_date != null ? profitGoal.start_date : '');
     setEditingEndDate(profitGoal.end_date != null ? profitGoal.end_date : '');
 
     setOriginalProfitGoal({
       targetProfit: profitGoal.target_profit != null ? profitGoal.target_profit : '',
-      startDate: profitGoal.start_date  != null ? profitGoal.start_date : '',
-      endDate: profitGoal.end_date  != null ? profitGoal.end_date : '',
+      startDate: profitGoal.start_date != null ? profitGoal.start_date : '',
+      endDate: profitGoal.end_date != null ? profitGoal.end_date : '',
     });
   };
 
@@ -105,6 +105,7 @@ const ProfitGoal = () => {
     setEditingId(null);
     setOriginalProfitGoal(null);
   };
+
   const handleUpdate = async (id) => {
     if (!originalProfitGoal) {
       setError('Original profit goal not found.');
@@ -137,7 +138,7 @@ const ProfitGoal = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      console.log("API Response:", response.data); // Debugging
+      console.log("API Response:", response.data);
 
       if (response.status === 200) {
         setSuccess('Profit goal updated successfully!');
@@ -206,11 +207,11 @@ const ProfitGoal = () => {
                     <strong> End Date:</strong> {profitGoal.end_date}
                     {userRole === 'superAdmin' && (
                       <>
-                        <button onClick={() => handleEdit(profitGoal)} style={styles.editButton}>
-                          Edit
+                        <button onClick={() => handleEdit(profitGoal)} style={{ ...styles.editButton, color: 'black' }}>
+                          <span style={{ color: 'black' }}>Edit</span>
                         </button>
-                        <button onClick={() => handleDelete(profitGoal.id)} style={styles.deleteButton}>
-                          Delete
+                        <button onClick={() => handleDelete(profitGoal.id)} style={{ ...styles.deleteButton, color: 'black' }}>
+                         <span style={{ color: 'black' }}>Delete</span>
                         </button>
                       </>
                     )}
@@ -239,7 +240,14 @@ const ProfitGoal = () => {
                 <label>End Date:</label>
                 <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
               </div>
-              <button type="submit">Create Profit Goal</button>
+              <button type="submit"                 style={{
+                  ...styles.createButton,
+                  backgroundColor: 'pink',
+                  color: 'black',
+                  marginTop: '20px', // Add margin top here
+                }}>
+                Create Profit Goal
+              </button>
             </form>
           </div>
         ) : (
@@ -294,4 +302,11 @@ const styles = {
     cursor: 'pointer',
     borderRadius: '5px',
   },
+  createButton: {
+    color: 'white',
+    border: 'none',
+    padding: '5px 10px',
+    cursor: 'pointer',
+    borderRadius: '5px',
+  }
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import "../styles/admin.css"
+import "../styles/admin.css";
 
 const API_URL = 'http://localhost:5000/api/auth'; // Adjust based on your backend
 
@@ -21,16 +21,17 @@ const AdminPanel = () => {
         const response = await axios.get(`${API_URL}/admins`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         console.log('Axios Response:', response);
         console.log('Axios Response Data:', response.data);
 
         if (response.data && response.data.admins) {
-          setAdmins(response.data.admins);  
+          setAdmins(response.data.admins);
         } else if (response.data && typeof response.data === 'object' && response.data.error) {
-          setError(response.data.error); 
+          setError(response.data.error);
         } else {
           console.log('No admins data or not an array');
-          setAdmins([]); 
+          setAdmins([]);
         }
       } catch (err) {
         console.error('Error fetching admins:', err);
@@ -69,10 +70,10 @@ const AdminPanel = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (updatedAdminsResponse.data && updatedAdminsResponse.data.admins) {
-        setAdmins(updatedAdminsResponse.data.admins);  
+        setAdmins(updatedAdminsResponse.data.admins);
       } else {
         console.log('No updated admins data or not an array');
-        setAdmins([]); 
+        setAdmins([]);
       }
     } catch (err) {
       console.error('Error creating admin:', err);
@@ -99,10 +100,10 @@ const AdminPanel = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (updatedAdminsResponse.data && updatedAdminsResponse.data.admins) {
-        setAdmins(updatedAdminsResponse.data.admins);  
+        setAdmins(updatedAdminsResponse.data.admins);
       } else {
         console.log('No updated admins data or not an array');
-        setAdmins([]); 
+        setAdmins([]);
       }
     } catch (err) {
       console.error('Error deleting admin:', err);
@@ -110,6 +111,25 @@ const AdminPanel = () => {
       setSuccess(null);
     }
   };
+
+  const buttonStyle = {
+    backgroundColor: 'pink',
+    color: 'black',
+    border: 'none',
+    padding: '5px 10px',
+    cursor: 'pointer',
+    borderRadius: '5px',
+  };
+
+  const createAdminButtonStyle = {
+    ...buttonStyle,
+    marginTop: '20px',
+  };
+
+  const deleteAdminButtonStyle = {
+    ...buttonStyle,
+    marginLeft: '20px'
+  }
 
   if (!token) {
     return <p>You need to log in to access the admin panel.</p>;
@@ -135,7 +155,7 @@ const AdminPanel = () => {
           <label>Password:</label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
-        <button type="submit">Create Admin</button>
+        <button type="submit" style={createAdminButtonStyle}>Create Admin</button>
       </form>
 
       <h3>All Admins</h3>
@@ -145,7 +165,7 @@ const AdminPanel = () => {
             <li key={admin.id}>
               <strong>Email:</strong> {admin.email} |
               <strong> Role:</strong> {admin.role} |
-              <button onClick={() => handleDeleteAdmin(admin.id)}>Delete</button>
+              <button onClick={() => handleDeleteAdmin(admin.id)} style={deleteAdminButtonStyle}>Delete</button>
             </li>
           ))
         ) : (

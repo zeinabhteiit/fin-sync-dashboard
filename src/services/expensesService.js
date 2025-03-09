@@ -29,7 +29,7 @@ export const createExpense = async (expenseData) => {
 // Update a fixed expense record
 export const updateExpense = async (id, expenseData) => {
   try {
-    const response = await axios.put($`{API_URL}/${id}`, expenseData, {
+    const response = await axios.put(`${API_URL}/${id}`, expenseData, {
       headers: { "Content-Type": "application/json" },
     });
     return response.data;
@@ -42,7 +42,7 @@ export const updateExpense = async (id, expenseData) => {
 // Delete a fixed expense record
 export const deleteExpense = async (id) => {
   try {
-    await axios.delete($`{API_URL}/${id}`);
+    await axios.delete(`${API_URL}/${id}`);
   } catch (error) {
     console.error("Error deleting expense:", error.response?.data || error.message);
     throw error;

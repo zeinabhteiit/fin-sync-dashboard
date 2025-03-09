@@ -77,11 +77,21 @@ const ExpenseList = () => {
     }
   };
 
+  const buttonStyle = {
+    backgroundColor: 'pink',
+    color: 'black',
+    border: 'none',
+    padding: '5px 10px',
+    cursor: 'pointer',
+    borderRadius: '5px',
+    marginLeft: '5px'
+  };
+
   return (
     <div>
       <h2>Fixed Expenses List</h2>
       <table border="1" cellPadding="8" cellSpacing="0">
-      <thead style={{ backgroundColor: "pink" }}>
+        <thead style={{ backgroundColor: "pink" }}>
           <tr>
             <th>Title</th>
             <th>Description</th>
@@ -107,8 +117,8 @@ const ExpenseList = () => {
                     <td><input type="text" name="category_id" value={editData.category_id} onChange={handleEditChange} /></td>
                     <td><input type="text" name="user_id" value={editData.user_id} onChange={handleEditChange} /></td>
                     <td>
-                      <button onClick={handleUpdate}>Save</button>
-                      <button onClick={() => setEditingExpenseId(null)}>Cancel</button>
+                      <button style={buttonStyle} onClick={handleUpdate}>Save</button>
+                      <button style={buttonStyle} onClick={() => setEditingExpenseId(null)}>Cancel</button>
                     </td>
                   </>
                 ) : (
@@ -121,18 +131,12 @@ const ExpenseList = () => {
                     <td>{expense.category_id}</td>
                     <td>{expense.user_id}</td>
                     <td>
-                    <button 
-                      onClick={() => handleEdit(income)} 
-                      style={{ backgroundColor: "#BE5985", color: "white", padding: "5px 15px", margin: "8px" }}
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(income.id)} 
-                      style={{ backgroundColor: "#BE5985", color: "white", padding: "5px 15px" }}
-                    >
-                      Delete
-                    </button>
+                      <button style={buttonStyle} onClick={() => handleEditClick(expense)}>
+                        Edit
+                      </button>
+                      <button style={buttonStyle} onClick={() => handleDelete(expense.id)}>
+                        Delete
+                      </button>
                     </td>
                   </>
                 )}
@@ -155,7 +159,7 @@ const ExpenseList = () => {
         <input type="date" name="date" value={formData.date} onChange={handleChange} required />
         <input type="text" name="category_id" value={formData.category_id} onChange={handleChange} placeholder="Category ID" required />
         <input type="text" name="user_id" value={formData.user_id} onChange={handleChange} placeholder="User ID" required />
-        <button type="submit">Add Expense</button>
+        <button style={buttonStyle} type="submit">Add Expense</button>
       </form>
     </div>
   );

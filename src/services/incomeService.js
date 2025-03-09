@@ -29,7 +29,7 @@ export const createIncome = async (incomeData) => {
 // Update an income record
 export const updateIncome = async (id, incomeData) => {
   try {
-    const response = await axios.put($`{API_URL}/${id}`, incomeData, {
+    const response = await axios.put(`${API_URL}/${id}`, incomeData, {
       headers: { "Content-Type": "application/json" },
     });
     return response.data;
@@ -42,7 +42,7 @@ export const updateIncome = async (id, incomeData) => {
 // Delete an income record
 export const deleteIncome = async (id) => {
   try {
-    await axios.delete($`{API_URL}/${id}`);
+    await axios.delete(`${API_URL}/${id}`);
   } catch (error) {
     console.error("Error deleting income:", error.response?.data || error.message);
     throw error;

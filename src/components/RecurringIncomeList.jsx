@@ -82,18 +82,28 @@ const RecurringIncomeList = () => {
     }
   };
 
+  const buttonStyle = {
+    backgroundColor: "pink",
+    color: "black",
+    padding: "5px 15px",
+    margin: "5px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  };
+
   return (
     <div>
       <h2>Recurring Income List</h2>
       <table border="1" cellPadding="8" cellSpacing="0">
-        <thead>
+        <thead style={{ backgroundColor: "pink" }}>
           <tr>
             <th>Title</th>
             <th>Description</th>
             <th>Amount</th>
             <th>Currency</th>
-            <th>Start Date</th>
-            <th>Finish Date</th>
+            <th>Start</th>
+            <th>Finish</th>
             <th>Frequency</th>
             <th>Category ID</th>
             <th>User ID</th>
@@ -114,10 +124,8 @@ const RecurringIncomeList = () => {
                 <td>{income.category_id}</td>
                 <td>{income.user_id}</td>
                 <td>
-                  <button onClick={() => handleEdit(income)}>Edit</button>
-                  <button onClick={() => handleDelete(income.id)} style={{ marginLeft: "5px", color: "red" }}>
-                    Delete
-                  </button>
+                  <button onClick={() => handleEdit(income)} style={buttonStyle}>Edit</button>
+                  <button onClick={() => handleDelete(income.id)} style={buttonStyle}>Delete</button>
                 </td>
               </tr>
             ))
@@ -140,9 +148,9 @@ const RecurringIncomeList = () => {
         <input type="text" name="frequency" value={formData.frequency} onChange={handleChange} placeholder="Frequency (e.g., monthly, weekly)" required />
         <input type="text" name="category_id" value={formData.category_id} onChange={handleChange} placeholder="Category ID" required />
         <input type="text" name="user_id" value={formData.user_id} onChange={handleChange} placeholder="User ID" required />
-        <button type="submit">{editingId ? "Update Recurring Income" : "Add Recurring Income"}</button>
+        <button type="submit" style={buttonStyle}>{editingId ? "Update Recurring Income" : "Add Recurring Income"}</button>
         {editingId && (
-          <button type="button" onClick={() => setEditingId(null)} style={{ marginLeft: "10px" }}>
+          <button type="button" onClick={() => setEditingId(null)} style={{ ...buttonStyle, marginLeft: "10px" }}>
             Cancel
           </button>
         )}

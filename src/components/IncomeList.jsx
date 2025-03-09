@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react"; 
+import React, { useEffect, useState } from "react";
 import { fetchIncome, createIncome, updateIncome, deleteIncome } from "../services/incomeService";
-
 
 const IncomeList = () => {
   const [incomeList, setIncomeList] = useState([]);
@@ -71,6 +70,15 @@ const IncomeList = () => {
     setIsEditing(false);
   };
 
+  const buttonStyle = {
+    backgroundColor: 'pink',
+    color: 'black',
+    border: 'none',
+    padding: '5px 10px',
+    cursor: 'pointer',
+    borderRadius: '5px',
+  };
+
   return (
     <div>
       <h2>Income List</h2>
@@ -101,8 +109,8 @@ const IncomeList = () => {
                       <input type="date" name="date" value={formData.date} onChange={handleChange} required />
                       <input type="text" name="category_id" value={formData.category_id} onChange={handleChange} placeholder="Category ID" required />
                       <input type="text" name="user_id" value={formData.user_id} onChange={handleChange} placeholder="User ID" required />
-                      <button type="submit">Update</button>
-                      <button type="button" onClick={resetForm}>Cancel</button>
+                      <button type="submit" style={buttonStyle}>Update</button>
+                      <button type="button" onClick={resetForm} style={buttonStyle}>Cancel</button>
                     </form>
                   </td>
                 </tr>
@@ -116,15 +124,15 @@ const IncomeList = () => {
                   <td>{income.category_id}</td>
                   <td>{income.user_id}</td>
                   <td>
-                    <button 
-                      onClick={() => handleEdit(income)} 
-                      style={{ backgroundColor: "#BE5985", color: "white", padding: "5px 15px", marginRight: "8px" }}
+                    <button
+                      onClick={() => handleEdit(income)}
+                      style={buttonStyle}
                     >
                       Edit
                     </button>
-                    <button 
-                      onClick={() => handleDelete(income.id)} 
-                      style={{ backgroundColor: "#BE5985", color: "white", padding: "5px 15px" }}
+                    <button
+                      onClick={() => handleDelete(income.id)}
+                      style={buttonStyle}
                     >
                       Delete
                     </button>
@@ -149,8 +157,10 @@ const IncomeList = () => {
         <input type="date" name="date" value={formData.date} onChange={handleChange} required />
         <input type="text" name="category_id" value={formData.category_id} onChange={handleChange} placeholder="Category ID" required />
         <input type="text" name="user_id" value={formData.user_id} onChange={handleChange} placeholder="User ID" required />
-        <button type="submit">{isEditing ? "Update Income" : "Add Income"}</button>
-        {isEditing && <button type="button" onClick={resetForm} style={{ marginLeft: "8px" }}>Cancel</button>}
+        <button style={{ ...buttonStyle, backgroundColor: "pink", color: "black" }} type="submit">
+          {isEditing ? "Update Income" : "Add Income"}
+        </button>
+        {isEditing && <button type="button" onClick={resetForm} style={{ marginLeft: "15px" }}>Cancel</button>}
       </form>
     </div>
   );
